@@ -1,0 +1,177 @@
+<html style="height: 896; width: 414;position: fixed;" >
+    <!-- <html> -->
+    <!-- -->
+    <head>
+        <title>ICalculator</title>
+        <base href="/">
+        <meta name="viewport" content= "width=device-width, user-scalable=no">
+       <style>
+        :root {
+            --c1: #D4D4D2;
+            --c2:#1C1C1C;
+            --c3:#505050;
+            --c4:#FF9500;
+        }
+        * {
+            background:var(--c2);
+            color: var(--c1);
+            font-size: 4vh;
+            margin: 1;
+            padding: 1;
+        }
+        body {
+            display: flex;
+            /* align-items: center; */
+            justify-content: end;
+            max-width: 100%;
+        }
+        input {
+            border: 0;
+            width: 95%;
+            pointer-events: none;
+            direction: rtl;
+            bottom: 16px;
+            position: absolute;
+            font-size: 11vh;
+        }
+        input:focus-visible {
+            border: 0;
+        }
+        .input-row {
+            height: 45vh;
+            position: relative;
+        }
+        button {
+            background: var(--c3);
+            border: 0;
+            height: 10vh;
+            width: 10vh;
+            border-radius: 100%;
+        }
+        .chars {
+            background: var(--c4);
+            color: var(--c1);
+        }
+        .chars-sec {
+            background: var(--c1);
+            color: var(--c2);
+        }
+        .chars-sec:active {
+            background: var(--c3);
+            color: var(--c2);
+        }
+        button:active {
+            background: var(--c2);
+        }
+        #active-sym {
+            background: var(--c1);
+            color: var(--c4);
+        }
+        .container {
+            display: inline-flex;
+            flex-direction: column;
+        }
+        .zero {
+            width: 21vh;
+            height: 10vh;
+            border-radius: 98px 98px;
+        }
+       </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row input-row">
+                <input type="text" value="" id="inpt-show"/>
+                <input type="text" value="" id="inpt" hidden/>
+            </div>
+            <div class="row">
+                <button onclick="getInput('AC', 'clear',this);" class="chars-sec">AC</button>
+                <button class="chars-sec" onclick="getInput('+/-', 'revnumber',this);"  value="+/-">+/-</button>
+                <button class="chars-sec" onclick="getInput('%', 'modules',this);"  value="%">%</button>
+                <button class="chars" onclick="getInput('/', 'symbol',this);"  value="/">÷</button>
+            </div>
+                <div class="row">
+                    <button onclick="getInput('1', 'number',this);">1</button>
+                    <button onclick="getInput('2', 'number',this);">2</button>
+                    <button onclick="getInput('3', 'number',this);">3</button>
+                    <button class="chars" onclick="getInput('*', 'symbol',this);"  value="*">×</button>
+                </div>
+                <div class="row">
+                    <button onclick="getInput('4', 'number',this);">4</button>
+                    <button onclick="getInput('5', 'number',this);">5</button>
+                    <button onclick="getInput('6', 'number',this);">6</button>
+                    <button class="chars" onclick="getInput('-', 'symbol',this);"  value="-">-</button>
+                </div>
+                <div class="row">
+                    <button onclick="getInput('7', 'number',this);">7</button>
+                    <button onclick="getInput('8', 'number',this);">8</button>
+                    <button onclick="getInput('9', 'number',this);">9</button>
+                    <button class="chars" onclick="getInput('+', 'symbol',this);"  value="+">+</button>
+                </div>
+                <div class="row">
+                    <button onclick="getInput('0', 'number',this);" class="zero">0</button>
+                    <button onclick="getInput('.', 'symbol',this);"  value=".">.</button>
+                    <button class="chars" onclick="getInput('=', 'equals',this);" value="=">=</button>
+                </div>
+        </div>
+    </body>
+    <script>
+        var val=temp=temp1 = 0;
+        const clrAll = (clr=0) => {
+                val=temp=temp1 = 0;
+                setVal(val);
+                (chkSpclCharExists()) && chkSpclCharExists().removeAttribute('id');
+        };
+        const getVal = () => document.getElementById('inpt').value
+        const setVal = (val) => {
+                if (val?.toString()?.length < Number.MAX_SAFE_INTEGER) {
+                    let size = (val?.toString().length > 6) ? (val?.toString().length > 12) ? '20' : '30' : '';
+                    document.getElementById('inpt-show').style.fontSize = size
+                    document.getElementById('inpt').value = val;
+                    document.getElementById('inpt-show').value = inputTextReplace(val);
+                } else {
+                    document.getElementById('inpt').value = 'ERROR';
+                    document.getElementById('inpt-show').value = 'ERROR';
+                }
+        };
+        const chkSpclCharExists = () => document.getElementById("active-sym")
+
+        const getInput = (input,type,e) => {
+            if (type == 'clear') { clrAll(); return false; }
+            if (type == 'revnumber' || type == 'modules'){
+                setVal((type == 'revnumber') ? (getVal()*-1) : (getVal()/100));
+                return false
+            }
+            if (chkSpclCharExists()) {
+                if (type == 'number') {
+                    temp1 = (temp1 == 0) ? input : temp1 += input;
+                    setVal(temp1);
+                } else if (type == 'equals') {
+                    let aftValidation = eval(`${temp}${chkSpclCharExists().value}${temp1}`);
+                    clrAll();
+                    setVal(aftValidation);
+                }
+            } else {
+                if (type == 'symbol' && input !== '.') {
+                    temp = Number(getVal());
+                    if (chkSpclCharExists()) 
+                        chkSpclCharExists().removeAttribute('id');
+
+                    e.id = 'active-sym'
+                } else if ((type == 'number') || (type == 'symbol' && input == '.')) {
+                    if (!(val.toString().includes('.') && input == '.'))
+                        val = (val == 0) ? input : val += input;
+                        setVal(val);
+                 }
+            }
+        }
+
+        const inputTextReplace = (value) => {
+           return ((parseInt(value?.toString()?.replace(/[^\d]+/gi, '')) || 0).toLocaleString('en-US'))
+        }
+        
+        (()=>{
+            setVal(val);
+        })()
+    </script>
+</html>
